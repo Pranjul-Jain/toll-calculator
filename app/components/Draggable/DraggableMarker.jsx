@@ -18,7 +18,6 @@ const DraggableMarker = ({position,...props}) => {
     return {
       dragend: (e)=>{
         const {lat,lng} = e.target._latlng;
-
         setMarkerLocation(prev=>[lat,lng]);
       }
     }
@@ -28,7 +27,7 @@ const DraggableMarker = ({position,...props}) => {
     const controller = new AbortController();
     if(markerLocation && markerLocation.length>0){
         const {lat,lng} = markerRef.current._latlng;
-
+        props.coards.current = markerLocation
         axios.get(`/api/Geolocation?lat=${lat}&lng=${lng}`,{signal:controller.signal}).then(res=>res.data)
         .then(data=>{
           if(props.Refid)document.getElementById(props.Refid).value = data.country

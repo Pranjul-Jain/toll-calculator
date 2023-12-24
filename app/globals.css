@@ -27,9 +27,6 @@ h1{
   color:#023047;
 }
 
-.black-main{
-  background-color: #043247;
-}
 
 .green-tick{
   color:#06d6a0 !important;
@@ -62,4 +59,17 @@ h1{
   align-items: end;
   margin-bottom:0.5rem;
   font-weight: 400;
+}
+
+.tollInfoBox{
+  background-color: whitesmoke;
+  padding:0.8rem 1rem;
+}
+
+.tollInfoHeading{
+  color:white;
+}
+
+.black-main{
+  background-color: #043247;
 }

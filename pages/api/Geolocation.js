@@ -2,9 +2,13 @@ import axios from 'axios'
 
 export default async function handler(req,res){
         const {lat,lng} = req.query;
+        if(!lat || !lng){
+            res.status(500).json({"Message":"Something went wrong!"})
+        }
+
         const response = await axios.get(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat}, ${lng}&result_type=country&key=${process.env.GOOGLE_API_KEY}`)
 
-        if(lat && lng && response){
+        if(response){
             const data = response.data;
             let country = data.plus_code
 
