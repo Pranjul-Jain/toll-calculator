@@ -1,27 +1,65 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
 
-:root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
+/* Your custom CSS styles go here */
+#root {
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+  /* height: 100%; */
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
-  }
+body{
+  text-align: center;
 }
 
-body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+h1{
+  font-size:2.5rem;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.text-yellow-main{
+  background-color: #FEBA2F;
+}
+
+.text-black-main{
+  color:#023047;
+}
+
+.black-main{
+  background-color: #043247;
+}
+
+.green-tick{
+  color:#06d6a0 !important;
+}
+
+.leaflet-container{
+  height: 500px;
+  width: 60%;
+}
+
+.tollCalculatorForm{
+  width:30%;
+}
+
+.form-control{
+  width:100%;
+  background-color: whitesmoke;
+  border-radius: 0.5rem;
+  padding: 0.8rem 0.6rem;
+  outline:none;
+  color:#023047;
+}
+
+.yellow-main{
+  background-color: #FFB703;
+}
+
+.tollHeaderSubLink{
+  display:grid;
+  align-items: end;
+  margin-bottom:0.5rem;
+  font-weight: 400;
 }
