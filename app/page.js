@@ -2,22 +2,20 @@
 
 import React,{useState,useRef, useEffect} from "react"
 import Header from './components/Header/Header'
-import { MapContainer, TileLayer, Polyline} from 'react-leaflet'
-import { Icon } from "leaflet"
-import LocationIcon from "./assets/location.png"
-import 'leaflet/dist/leaflet.css'
-import DraggableMarker from "./components/Draggable/DraggableMarker";
 import axios from "axios"
 import { decode } from "@googlemaps/polyline-codec";
 import LocationInput from "./components/Form/LocationInput";
+import dynamic from "next/dynamic";
+
+const  DraggableMarker = dynamic(() => import('./components/Draggable/DraggableMarker'), {
+  ssr: false
+});
+
+const Map = dynamic(() => import('./components/Map/Map'), {
+  ssr: false
+})
 
 export default function Home() {
-
-  // creationg custom icon for marker
-  const customIcon = new Icon({
-    iconUrl : LocationIcon.src,
-    iconSize: [38,38]
-  })
 
   // will store polyline coordinates after fetching from google api
   const [polylinePositons,setPolylinePositions] = useState([])
@@ -93,16 +91,10 @@ export default function Home() {
             }
           </form>
           {/* React Leaflet Map */}
-          <MapContainer center={[(GeoCoardinatesOne[0]+GeoCoardinatesTwo[0])/2, (GeoCoardinatesOne[1]+GeoCoardinatesTwo[1])/2]} zoom={4} scrollWheelZoom={true}>
-            <TileLayer
-              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            />
-            {/* Geocoardinates will only Changed when Source or Destination input field changed and will cause these two below components to re-render*/}
-            <DraggableMarker position={GeoCoardinatesOne} icon={customIcon} text={"Source"} draggable={true} Refid={"GeolocationOne"} />
-            <DraggableMarker position={GeoCoardinatesTwo} text={"Destination"} draggable={true} Refid={"GeolocationTwo"} />
-            {polylinePositons.length>0 && <Polyline positions={polylinePositons} pathOptions={{color:"crimson"}} />}
-          </MapContainer>
+          <Map GeoCoardinatesOne={GeoCoardinatesOne} GeoCoardinatesTwo={GeoCoardinatesTwo} polylinePositons={polylinePositons}>
+            <DraggableMarker position={GeoCoardinatesOne} icon={"true"} text={"Source"} draggable={true} Refid={"GeolocationOne"} />
+            <DraggableMarker position={GeoCoardinatesTwo} icon={"false"} text={"Destination"} draggable={true} Refid={"GeolocationTwo"} />
+          </Map>
         </div>
       </section>
     </>

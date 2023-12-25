@@ -5,6 +5,7 @@ import { Marker,Popup } from "react-leaflet"
 import {Icon} from 'leaflet'
 import defaultMarker from "../../assets/markerblue.png"
 import axios from "axios"
+import LocationIcon from "../../assets/location.png"
 
 const DraggableMarker = ({position,...props}) => {
   // markerRef will be passed into Marker component as a prop, so that we can access the Marker Properties such as latitude and longitude
@@ -15,6 +16,12 @@ const DraggableMarker = ({position,...props}) => {
 
   const defaultIcon = new Icon({
     iconUrl:defaultMarker.src,
+    iconSize: [38,38]
+  })
+
+  //creationg custom icon for marker
+  const customIcon = new Icon({
+    iconUrl : LocationIcon.src,
     iconSize: [38,38]
   })
 
@@ -49,7 +56,7 @@ const DraggableMarker = ({position,...props}) => {
 
 
   return (
-    <Marker position={position} eventHandlers={eventHandlers} ref={markerRef} icon={props.icon?props.icon:defaultIcon} draggable={props.draggable?true:false}>
+    <Marker position={position} eventHandlers={eventHandlers} ref={markerRef} icon={props.icon=="true"?customIcon:defaultIcon} draggable={props.draggable?true:false}>
         <Popup>
             {props.text?props.text:<>I am a Marker.</>}
         </Popup>
