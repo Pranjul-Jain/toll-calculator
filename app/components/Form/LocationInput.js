@@ -23,7 +23,7 @@ const LocationInput = ({setGeoCoardinates,...props}) => {
             <input onChange={inputTextHandler} {...props} ref={inputRef} />
             <ul className="grid gap-y-1 cursor-pointer hover:color-black absolute top-full left-0 w-full z-10 h-max bg-slate-50 hidden p-2" id={props.id+"CountryList"}>
                 {countryList.length>0 && countryList.map((object)=>{
-                    return <li className='uppercase text-left w-full hover:bg-slate-100' lat={object.lat} onClick={selectInput} lng={object.lng}>{object.country}</li>
+                    return <li key={new Date().getTime()+"-"+object.lat+props.id} className='uppercase text-left w-full hover:bg-slate-100' lat={object.lat} onClick={selectInput} lng={object.lng}>{object.country}</li>
                 })}
             </ul>
         </div>
