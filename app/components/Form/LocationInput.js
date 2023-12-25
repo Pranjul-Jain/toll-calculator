@@ -23,7 +23,6 @@ const LocationInput = ({setGeoCoardinates,...props}) => {
             <input onChange={inputTextHandler} {...props} ref={inputRef} />
             <ul className="grid gap-y-1 cursor-pointer hover:color-black absolute top-full left-0 w-full z-10 h-max bg-slate-50 hidden p-2" id={props.id+"CountryList"}>
                 {countryList.length>0 && countryList.map((object)=>{
-                    console.log(object)
                     return <li className='uppercase text-left w-full hover:bg-slate-100' lat={object.lat} onClick={selectInput} lng={object.lng}>{object.country}</li>
                 })}
             </ul>
@@ -53,7 +52,7 @@ const LocationInput = ({setGeoCoardinates,...props}) => {
 
     let isCountryList = true;
 
-    if(value.length>=2){
+    if(value.length>0){
         try {
             const response = await axios.get('/api/GetPlace?input=' + value, {
               cancelToken: cancelTokenSource.current.token, // Pass the cancel token to the request

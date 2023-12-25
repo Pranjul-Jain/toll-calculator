@@ -3,7 +3,7 @@ import axios from "axios"
 export default async function handler(req,res){
 
     const {origin,destination} = req.query
-
+    
     // if origin or destination values not defined then send 500 internal server error
     if(!origin || !destination){
         res.status(500).json({"Message":"Something went wrong!"})
@@ -14,7 +14,6 @@ export default async function handler(req,res){
 
     if(response){
         const data = response.data
-
         // extracting polyline string and duration from response 
         const polyline = data.routes[0].overview_polyline.points
         res.status(200).json({"polyline":polyline,"duration":data.routes[0].legs[0].duration.text})

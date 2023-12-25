@@ -23,8 +23,8 @@ export default function Home() {
   const [polylinePositons,setPolylinePositions] = useState([])
 
   // contains latitude and longitude of geolocation of source location and destination
-  const [GeoCoardinatesOne,setGeoCoardinatesOne] = useState([40.69615,-75.18973])
-  const [GeoCoardinatesTwo,setGeoCoardinatesTwo] = useState([39.36827914916014, -87.01106199143922])
+  const [GeoCoardinatesOne,setGeoCoardinatesOne] = useState([0,0])
+  const [GeoCoardinatesTwo,setGeoCoardinatesTwo] = useState([0,0])
   
   // will store fuel price and other information
   const [tollInfo,setTollInfo] = useState([])
@@ -38,11 +38,17 @@ export default function Home() {
 
     const setVisiblilty = (e)=>{
       if(!GeolocationOneCountryList.classList.contains("hidden")) {
-        if(!(GeolocationOne.contains(e.target) || GeolocationOneCountryList.contains(e.target))) GeolocationOneCountryList.classList.add("hidden")
+        if(!(GeolocationOne.contains(e.target) || GeolocationOneCountryList.contains(e.target))){
+          checkAndSetGeoCoardinates("GeolocationOne",setGeoCoardinatesOne);
+          GeolocationOneCountryList.classList.add("hidden")
+        }
       }
 
       if(!GeolocationTwoCountryList.classList.contains("hidden")){
-        if(!(GeolocationTwo.contains(e.target) || GeolocationTwoCountryList.contains(e.target))) GeolocationTwoCountryList.classList.add("hidden")
+        if(!(GeolocationTwo.contains(e.target) || GeolocationTwoCountryList.contains(e.target))){
+          checkAndSetGeoCoardinates("GeolocationTwo",setGeoCoardinatesTwo);
+          GeolocationTwoCountryList.classList.add("hidden")
+        } 
       }
     }
 
@@ -105,9 +111,13 @@ export default function Home() {
   {/* Fetches Polyline from google api and fetch cost details and other details from source, destination and vehicle type parameters */}
   async function formHandler(event){
     event.preventDefault()
+    if(!document.querySelector("#GeolocationOne").value || !document.querySelector("#GeolocationTwo").value)return
+    if(!(GeoCoardinatesOne[0]!==0 || GeoCoardinatesOne[1]!==0) || !(GeoCoardinatesTwo[0]!==0 || GeoCoardinatesTwo[1]!==0))return
+
     const source = `${GeoCoardinatesOne[0]}, ${GeoCoardinatesOne[1]}`
     const destination = `${GeoCoardinatesTwo[0]}, ${GeoCoardinatesTwo[1]}`
-
+    if(source==destination)return;
+    try{
     // fetches polyline string and duration from next.js backend
     const response = await axios.get(`/api/Direction?origin=${source}&destination=${destination}`)
     if(response){
@@ -121,7 +131,35 @@ export default function Home() {
         setTollInfo(prev=>[tollData.fuel,tollData.distance])
       }
     }
+  }catch(err){
+    console.log(err)
   }
+ }
 
+ function checkAndSetGeoCoardinates(id,setCoardinates){
+    let isOptionSelected = false;
+
+    const allLists = document.querySelectorAll("#"+id+"CountryList li");
+    const Geolocation = document.getElementById(id);
+    
+    for(let i=0;i<allLists.length;i++){
+      if(allLists[i].textContent === Geolocation.value){
+        setCoardinates([parseFloat(allLists[i].getAttribute("lat")),parseFloat(allLists[i].getAttribute("lng"))]);
+        isOptionSelected = true
+        break
+      }
+    }
+
+    if(!isOptionSelected){
+      if(allLists.length>0){
+        Geolocation.value = allLists[0].textContent;
+        setCoardinates([parseFloat(allLists[0].getAttribute("lat")),parseFloat(allLists[0].getAttribute("lng"))]);
+      }else{
+        Geolocation.value = "";
+        setCoardinates([0,0]);
+      }
+      
+    }
+ }
 
 }

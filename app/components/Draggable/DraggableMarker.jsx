@@ -34,9 +34,9 @@ const DraggableMarker = ({position,...props}) => {
 
     if(markerLocation && markerLocation.length>0){
         const {lat,lng} = markerRef.current._latlng;
+        if(lat!=0 || lng!=0)
         axios.get(`/api/Geolocation?lat=${lat}&lng=${lng}`,{signal:controller.signal}).then(res=>res.data)
         .then(data=>{
-          console.log("Marker: ",document.getElementById(props.Refid))
           document.getElementById(props.Refid).value = data.country
         }).catch(err=>console.log(err))
     }
