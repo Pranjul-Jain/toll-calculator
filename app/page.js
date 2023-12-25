@@ -1,6 +1,6 @@
 'use client';
 
-import React,{useState,useRef} from "react"
+import React,{useState,useRef, useEffect} from "react"
 import Header from './components/Header/Header'
 import { MapContainer, TileLayer, Polyline} from 'react-leaflet'
 import { Icon } from "leaflet"
@@ -9,31 +9,66 @@ import 'leaflet/dist/leaflet.css'
 import DraggableMarker from "./components/Draggable/DraggableMarker";
 import axios from "axios"
 import { decode } from "@googlemaps/polyline-codec";
+import LocationInput from "./components/Form/LocationInput";
 
 export default function Home() {
+
+  // creationg custom icon for marker
   const customIcon = new Icon({
     iconUrl : LocationIcon.src,
     iconSize: [38,38]
   })
 
+  // will store polyline coordinates after fetching from google api
   const [polylinePositons,setPolylinePositions] = useState([])
-  const GeoCoardinatesOne = useRef([40.69615,-75.18973])
-  const GeoCoardinatesTwo = useRef([39.36827914916014, -87.01106199143922])
+
+  // contains latitude and longitude of geolocation of source location and destination
+  const [GeoCoardinatesOne,setGeoCoardinatesOne] = useState([40.69615,-75.18973])
+  const [GeoCoardinatesTwo,setGeoCoardinatesTwo] = useState([39.36827914916014, -87.01106199143922])
   
+  // will store fuel price and other information
   const [tollInfo,setTollInfo] = useState([])
   const [duration,setDuration] = useState("")
-  
+
+  useEffect(()=>{
+    const GeolocationOne = document.getElementById("GeolocationOne")
+    const GeolocationOneCountryList = document.getElementById("GeolocationOneCountryList")
+    const GeolocationTwo = document.getElementById("GeolocationTwo")
+    const GeolocationTwoCountryList = document.getElementById("GeolocationTwoCountryList")
+
+    const setVisiblilty = (e)=>{
+      if(!GeolocationOneCountryList.classList.contains("hidden")) {
+        if(!(GeolocationOne.contains(e.target) || GeolocationOneCountryList.contains(e.target))) GeolocationOneCountryList.classList.add("hidden")
+      }
+
+      if(!GeolocationTwoCountryList.classList.contains("hidden")){
+        if(!(GeolocationTwo.contains(e.target) || GeolocationTwoCountryList.contains(e.target))) GeolocationTwoCountryList.classList.add("hidden")
+      }
+    }
+
+    document.addEventListener("click",setVisiblilty)
+
+    return ()=>{
+      document.removeEventListener("click",setVisiblilty)
+    }
+  },[])
+
   return (
     <>
+      
+      {/* Header */}
       <Header />
+      {/* Toll Calculator */}
       <section className='grid px-4 pt-10 gap-y-12'>
         <h1 className='text-black-main'>TOLL CALCULATOR</h1>
         <div className='flex justify-evenly items-center gap-x-4 w-full px-4 py-2'>
+          {/* Toll Calculator Form */}
           <form className="grid gap-y-2 tollCalculatorForm" onSubmit={formHandler}>
-            <input className="form-control" type="text" placeholder={'🔴 Enter Starting Location'} id="GeolocationOne"/>
-            <input className="form-control mb-4" type="text" placeholder='🔵 Enter Destination Location' id="GeolocationTwo" />
+            <LocationInput setGeoCoardinates={setGeoCoardinatesOne} className="form-control" type="text" autoComplete="off" placeholder={'🔴 Enter Starting Location'} id="GeolocationOne" />
+            <LocationInput setGeoCoardinates={setGeoCoardinatesTwo} className="form-control mb-1" type="text" autoComplete="off" placeholder='🔵 Enter Destination Location' id="GeolocationTwo" />
+            <label className="mt-3 text-lg text-black-main" htmlFor="vehicleType">Select Vehicle Type</label>
             <select name="vehicleType" className="form-control mb-6 text-center" id="vehicleType">
-              <option disabled={true}>---Select Option---</option>
+              <option disabled={true}>---Select Vehicle Type---</option>
               <option value="2AxlesAuto">Car</option>
               <option value="2AxlesEV">Electric Vehicle</option>
               <option value="3AxlesTruck">Truck</option>
@@ -51,30 +86,35 @@ export default function Home() {
               </div>
             }
           </form>
-          <MapContainer center={[(GeoCoardinatesOne.current[0]+GeoCoardinatesTwo.current[0])/2, (GeoCoardinatesOne.current[1]+GeoCoardinatesTwo.current[1])/2]} zoom={4} scrollWheelZoom={true}>
+          {/* React Leaflet Map */}
+          <MapContainer center={[(GeoCoardinatesOne[0]+GeoCoardinatesTwo[0])/2, (GeoCoardinatesOne[1]+GeoCoardinatesTwo[1])/2]} zoom={4} scrollWheelZoom={true}>
             <TileLayer
               attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
-            <DraggableMarker position={GeoCoardinatesOne.current} icon={customIcon} text={"Source"} draggable={true} Refid={"GeolocationOne"} coards={GeoCoardinatesOne} />
-            <DraggableMarker position={GeoCoardinatesTwo.current} text={"Destination"} draggable={true} Refid={"GeolocationTwo"} coards={GeoCoardinatesTwo} />
+            {/* Geocoardinates will only Changed when Source or Destination input field changed and will cause these two below components to re-render*/}
+            <DraggableMarker position={GeoCoardinatesOne} icon={customIcon} text={"Source"} draggable={true} Refid={"GeolocationOne"} />
+            <DraggableMarker position={GeoCoardinatesTwo} text={"Destination"} draggable={true} Refid={"GeolocationTwo"} />
             {polylinePositons.length>0 && <Polyline positions={polylinePositons} pathOptions={{color:"crimson"}} />}
           </MapContainer>
         </div>
       </section>
     </>
   )
-
+  
+  {/* Fetches Polyline from google api and fetch cost details and other details from source, destination and vehicle type parameters */}
   async function formHandler(event){
     event.preventDefault()
-    const source = `${GeoCoardinatesOne.current[0]}, ${GeoCoardinatesOne.current[1]}`
-    const destination = `${GeoCoardinatesTwo.current[0]}, ${GeoCoardinatesTwo.current[1]}`
+    const source = `${GeoCoardinatesOne[0]}, ${GeoCoardinatesOne[1]}`
+    const destination = `${GeoCoardinatesTwo[0]}, ${GeoCoardinatesTwo[1]}`
 
+    // fetches polyline string and duration from next.js backend
     const response = await axios.get(`/api/Direction?origin=${source}&destination=${destination}`)
     if(response){
       const data = response.data
       setPolylinePositions(decode(data.polyline,5))
       setDuration(data.duration)
+      // fetches toll cost and distance from next.js backend
       const tollResponse = await axios.get(`/api/CalculateToll?polyline=${data.polyline}&vehicleType=${event.target.vehicleType.value}`)
       if(tollResponse){
         const tollData = tollResponse.data
@@ -82,4 +122,6 @@ export default function Home() {
       }
     }
   }
+
+
 }

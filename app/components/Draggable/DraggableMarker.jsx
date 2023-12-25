@@ -7,13 +7,18 @@ import defaultMarker from "../../assets/markerblue.png"
 import axios from "axios"
 
 const DraggableMarker = ({position,...props}) => {
+  // markerRef will be passed into Marker component as a prop, so that we can access the Marker Properties such as latitude and longitude
   const markerRef = useRef(null)
+
+  // markerLocation will contain the updated latitude and longitude of the marker and only triggers when the marker is dragged
   const [markerLocation,setMarkerLocation] = useState(position)
+
   const defaultIcon = new Icon({
     iconUrl:defaultMarker.src,
     iconSize: [38,38]
   })
 
+  // eventHandlers will be passed into Marker component in order handle drag events
   const eventHandlers = useMemo(()=>{
     return {
       dragend: (e)=>{
@@ -24,16 +29,19 @@ const DraggableMarker = ({position,...props}) => {
   })
 
   useEffect(()=>{
+    // controller will abort the request as soon as new request is send in order to make it efficient
     const controller = new AbortController();
+
     if(markerLocation && markerLocation.length>0){
         const {lat,lng} = markerRef.current._latlng;
-        props.coards.current = markerLocation
         axios.get(`/api/Geolocation?lat=${lat}&lng=${lng}`,{signal:controller.signal}).then(res=>res.data)
         .then(data=>{
-          if(props.Refid)document.getElementById(props.Refid).value = data.country
+          console.log("Marker: ",document.getElementById(props.Refid))
+          document.getElementById(props.Refid).value = data.country
         }).catch(err=>console.log(err))
     }
-
+    
+    // this is a cleanup function which will be called when the component is unmounted
     return ()=>{
         controller.abort()
     }
