@@ -33,7 +33,7 @@ const DraggableMarker = ({position,...props}) => {
         setMarkerLocation(prev=>[lat,lng]);
       }
     }
-  })
+  },[])
 
   useEffect(()=>{
     // controller will abort the request as soon as new request is send in order to make it efficient
